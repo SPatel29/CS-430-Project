@@ -4,10 +4,14 @@ hash_map = {}
 
 class Tree:
     class Node:
-        def __init__(self, data=None, left=None, right=None):
+        def __init__(self, data=None, left=None, right=None, bit=None):
             self.data = data
             self.left = left
             self.right = right
+            self.bit = bit
+
+        def change_bit(self, bit):
+            self.bit = bit
 
     def __init__(self):
         self.root = None
@@ -26,10 +30,9 @@ def huffman():
 
 
 def merge_nodes(node1, node2):
-    node1.bit = 0
-    node2.bit = 1
+    node1.change_bit("0")
+    node2.change_bit("1")
     value = (node1.data[0] + node2.data[0], node1.data[1] + node2.data[1])
-    # print(value)
     prio_queue.append(Tree.Node(data=value, left=node1, right=node2))
     prio_queue.sort(key=lambda x: x.data[1])  # Sort the node objects inside the prio queue
     # for x in prio_queue:
@@ -61,20 +64,28 @@ def main():
     unsorted_lst = list(hash_map.items())
     sorted_lst = sorted(unsorted_lst, key=lambda x: x[1],
                         reverse=False)  # Sort by the second item (index 1) from the tuple
-    #print(sorted_lst)
+    # print(sorted_lst)
     for i in sorted_lst:
         prio_queue.append(Tree().Node(i))
     huffman()
-    #print(len(prio_queue))
-    #for i in prio_queue:
+    # print(len(prio_queue))
+    # for i in prio_queue:
     #    print(i.data, i.left.data, i.right.data)
     tree.make_root(prio_queue[0])
-    #print(tree.root.data, 'data')
-    #if tree.root.left:
-    #    print(tree.root.left.data, 'left')
-    #if tree.root.right:
-    #    print(tree.root.right.data, 'right')
+    print(tree.root.data, 'root-data')
+    print(tree.root.left.data, 'left-data')
+    print(tree.root.right.data, 'right-data')
 
+    # if tree.root.left:
+    #    print(tree.root.left.data, 'left')
+    # if tree.root.right:
+    #    print(tree.root.right.data, 'right')
+    left_node = tree.root.left
+    print(left_node.right.bit, 'left bit')
+    right_node = tree.root.right
+    print(right_node.left.bit, 'right bit')
+    root_node = tree.root
+    # print(tree.root.bit, 'root bit')
 
 if __name__ == "__main__":
     main()
