@@ -50,6 +50,7 @@ def file_read(file):
 
 
 def main():
+    tree = Tree()
     try:
         file_path = input("Enter path:")
         file = open(file_path, "r")
@@ -60,13 +61,19 @@ def main():
     unsorted_lst = list(hash_map.items())
     sorted_lst = sorted(unsorted_lst, key=lambda x: x[1],
                         reverse=False)  # Sort by the second item (index 1) from the tuple
-    print(sorted_lst)
+    #print(sorted_lst)
     for i in sorted_lst:
         prio_queue.append(Tree().Node(i))
     huffman()
-    print(len(prio_queue))
-    for i in prio_queue:
-        print(i.data, i.left.data, i.right.data)
+    #print(len(prio_queue))
+    #for i in prio_queue:
+    #    print(i.data, i.left.data, i.right.data)
+    tree.make_root(prio_queue[0])
+    #print(tree.root.data, 'data')
+    #if tree.root.left:
+    #    print(tree.root.left.data, 'left')
+    #if tree.root.right:
+    #    print(tree.root.right.data, 'right')
 
 
 if __name__ == "__main__":
