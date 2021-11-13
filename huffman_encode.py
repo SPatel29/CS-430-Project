@@ -1,5 +1,7 @@
 prio_queue = []
 hash_map = {}
+bit_mapping = []
+bit_dictionary = {}
 
 
 class Tree:
@@ -33,11 +35,61 @@ def merge_nodes(node1, node2):
     node1.change_bit("0")
     node2.change_bit("1")
     value = (node1.data[0] + node2.data[0], node1.data[1] + node2.data[1])
-    prio_queue.append(Tree.Node(data=value, left=node1, right=node2))
+    prio_queue.append(Tree.Node(data=value, left=node1, right=node2, bit=None))
     prio_queue.sort(key=lambda x: x.data[1])  # Sort the node objects inside the prio queue
     # for x in prio_queue:
     #    print(x.data, 'sorted prio again')
     # print(prio_queue[-1].left.bit, prio_queue[-1].right.bit)
+
+
+def traverse_tree(root):  # Post-Order Traversal.
+    if root:
+        traverse_tree(root.left)
+        traverse_tree(root.right)
+        print(root.data, 'data', root.bit, 'bit')
+
+
+def bit_traversal(root, array, tree):
+    if root and root is tree.root and root.left.bit != "2":
+        array = []
+        bit_traversal(root.left, array, tree)
+    if root and root is tree.root and root.right.bit != "2" and root.left.bit == "2":
+        array = []
+        bit_traversal(root.right, array, tree)
+    if root and root.bit:
+        array.append(root.bit)
+        bit_traversal(root.left, array, tree)
+        bit_traversal(root.right, array, tree)
+        if not root.left and not root.right:
+            bit_dictionary[root.data[0]] = "".join(array)
+            del array[-1]
+            root.bit = "2"
+        if root.left and root.right:
+            if root.left.bit == "2" and root.right.bit == "2":
+                root.bit = "2"
+                if len(array) >= 1:
+                    del array[-1]
+
+
+
+
+
+
+    '''
+    if root:
+        if root.bit and len(array) == 0:
+            array.append(root.bit)
+        elif root.bit and len(array) > 0:
+            array[0] += root.bit
+        if len(array) >= 2:
+            bit_traversal(root.left, array[:len(array)-1])
+        else:
+            bit_traversal(root.left, array[:len(array)-1])
+        if root.bit:
+            if not root.left and not root.right:
+                bit_dictionary[root.data] = array[0]
+        bit_traversal(root.right, array)
+    '''
 
 
 def file_read(file):
@@ -64,14 +116,14 @@ def main():
     unsorted_lst = list(hash_map.items())
     sorted_lst = sorted(unsorted_lst, key=lambda x: x[1],
                         reverse=False)  # Sort by the second item (index 1) from the tuple
-    # print(sorted_lst)
+    print(sorted_lst)
     for i in sorted_lst:
         prio_queue.append(Tree().Node(i))
     huffman()
     # print(len(prio_queue))
     # for i in prio_queue:
     #    print(i.data, i.left.data, i.right.data)
-    tree.make_root(prio_queue[0])
+    tree.root = prio_queue[0]
     print(tree.root.data, 'root-data')
     print(tree.root.left.data, 'left-data')
     print(tree.root.right.data, 'right-data')
@@ -86,6 +138,11 @@ def main():
     print(right_node.left.bit, 'right bit')
     root_node = tree.root
     # print(tree.root.bit, 'root bit')
+    my_array = []
+    traverse_tree(root_node)
+    bit_traversal(root_node, bit_mapping, tree)
+    print(bit_dictionary)
+
 
 if __name__ == "__main__":
     main()
