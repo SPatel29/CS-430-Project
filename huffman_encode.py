@@ -31,9 +31,6 @@ def merge_nodes(node1, node2, prio_queue):
     value = (node1.data[0] + node2.data[0], node1.data[1] + node2.data[1])
     prio_queue.append(Tree.Node(data=value, left=node1, right=node2, bit=None))
     prio_queue.sort(key=lambda x: x.data[1])  # Sort the node objects inside the prio queue
-    # for x in prio_queue:
-    #    print(x.data, 'sorted prio again')
-    # print(prio_queue[-1].left.bit, prio_queue[-1].right.bit)
 
 
 def traverse_tree(root):  # Post-Order Traversal.
@@ -74,9 +71,7 @@ def file_read(file, hash_map):
     file.close()
 
 
-def second_file_read(file_path, bit_dictionary):
-    r = open(file_path, "r")
-    w = open("encode.txt", "w+")
+def second_file_read(bit_dictionary, r, w):
     while True:
         character = r.read(1)
         if not character:
@@ -84,7 +79,19 @@ def second_file_read(file_path, bit_dictionary):
         else:
             if bit_dictionary[character]:
                 w.write(str(bit_dictionary[character]))
-    r.close()
+
+
+def decoder(node, input_file, tree, output_file):
+    if node and not node.right and not node.left:
+        output_file.write(node.data[0])
+        decoder(tree.root, input_file, tree, output_file)
+    elif node:
+        character = input_file.read(1)
+        if character:
+            if character == "0":
+                decoder(node.left, input_file, tree, output_file)
+            elif character == "1":
+                decoder(node.right, input_file, tree, output_file)
 
 
 def printTree(node, level=0):
@@ -126,7 +133,16 @@ def main():
     print(bit_dictionary)
     print(root_node.right.bit)
     printTree(root_node)
-    second_file_read(file_path, bit_dictionary)
+    r = open(file_path, "r")
+    w = open("encode.txt", "w+")
+    second_file_read(bit_dictionary, r, w)
+    r.close()
+    w.close()
+    r2 = open("encode.txt", "r")
+    w = open("a-out.txt", "w+")
+    decoder(root_node, r2, tree, w)
+    w.close()
+    r2.close()
 
 
 if __name__ == "__main__":
