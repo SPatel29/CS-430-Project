@@ -18,10 +18,10 @@ class Tree:
 
 def huffman(prio_queue):
     while len(prio_queue) > 1:
-        min_value = prio_queue[0]
-        max_value = prio_queue[1]
-        del prio_queue[0]
-        del prio_queue[0]
+        min_value = prio_queue[-1]
+        del prio_queue[-1]
+        max_value = prio_queue[-1]
+        del prio_queue[-1]
         merge_nodes(min_value, max_value, prio_queue)
 
 
@@ -30,7 +30,7 @@ def merge_nodes(node1, node2, prio_queue):
     node2.change_bit("1")
     value = (node1.data[0] + node2.data[0], node1.data[1] + node2.data[1])
     prio_queue.append(Tree.Node(data=value, left=node1, right=node2, bit=None))
-    prio_queue.sort(key=lambda x: x.data[1])  # Sort the node objects inside the prio queue
+    prio_queue.sort(key=lambda x: x.data[1], reverse= True)  # Sort the node objects inside the prio queue
 
 
 def traverse_tree(root):  # Post-Order Traversal.
@@ -121,7 +121,7 @@ def main():
         print(msg)
     unsorted_lst = list(hash_map.items())
     sorted_lst = sorted(unsorted_lst, key=lambda x: x[1],
-                        reverse=False)  # Sort by the second item (index 1) from the tuple
+                        reverse=True)  # Sort by the second item (index 1) from the tuple
     print(sorted_lst)
     for i in sorted_lst:
         prio_queue.append(Tree().Node(i))
