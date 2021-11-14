@@ -1,9 +1,3 @@
-prio_queue = []
-hash_map = {}
-bit_mapping = []
-bit_dictionary = {}
-
-
 class Tree:
     class Node:
         def __init__(self, data=None, left=None, right=None, bit=None):
@@ -22,16 +16,16 @@ class Tree:
         self.root = node
 
 
-def huffman():
+def huffman(prio_queue):
     while len(prio_queue) > 1:
         min_value = prio_queue[0]
         max_value = prio_queue[1]
         del prio_queue[0]
         del prio_queue[0]
-        merge_nodes(min_value, max_value)
+        merge_nodes(min_value, max_value, prio_queue)
 
 
-def merge_nodes(node1, node2):
+def merge_nodes(node1, node2, prio_queue):
     node1.change_bit("0")
     node2.change_bit("1")
     value = (node1.data[0] + node2.data[0], node1.data[1] + node2.data[1])
@@ -49,50 +43,26 @@ def traverse_tree(root):  # Post-Order Traversal.
         print(root.data, 'data', root.bit, 'bit')
 
 
-def bit_traversal(root, array, tree):
-    if root and root is tree.root and root.left.bit != "2":
-        array = []
-        bit_traversal(root.left, array, tree)
-    if root and root is tree.root and root.right.bit != "2" and root.left.bit == "2":
-        array = []
-        bit_traversal(root.right, array, tree)
-    if root and root.bit:
-        array.append(root.bit)
-        bit_traversal(root.left, array, tree)
-        bit_traversal(root.right, array, tree)
-        if not root.left and not root.right:
-            bit_dictionary[root.data[0]] = "".join(array)
+def bit_traversal(node, array, tree, bit_dictionary):
+    if node and node is tree.root:  # Since the root does not have a bit, we make a separate if clause
+        bit_traversal(node.left, array, tree, bit_dictionary)
+        bit_traversal(node.right, array, tree, bit_dictionary)
+    if node and node.bit and node is not tree.root:  # Every node but the root
+        array.append(node.bit)
+        bit_traversal(node.left, array, tree, bit_dictionary)
+        bit_traversal(node.right, array, tree, bit_dictionary)
+        if not node.left and not node.right:  # If it's a leaf node
+            bit_dictionary[node.data[0]] = "".join(array)
             del array[-1]
-            root.bit = "2"
-        if root.left and root.right:
-            if root.left.bit == "2" and root.right.bit == "2":
-                root.bit = "2"
+            node.bit = "2"
+        if node.left and node.right:  # If it's a parent node
+            if node.left.bit == "2" and node.right.bit == "2":  # Means we have visited both subtrees of a node
+                node.bit = "2"  # Mark the parent of both subtrees as 2
                 if len(array) >= 1:
                     del array[-1]
 
 
-
-
-
-
-    '''
-    if root:
-        if root.bit and len(array) == 0:
-            array.append(root.bit)
-        elif root.bit and len(array) > 0:
-            array[0] += root.bit
-        if len(array) >= 2:
-            bit_traversal(root.left, array[:len(array)-1])
-        else:
-            bit_traversal(root.left, array[:len(array)-1])
-        if root.bit:
-            if not root.left and not root.right:
-                bit_dictionary[root.data] = array[0]
-        bit_traversal(root.right, array)
-    '''
-
-
-def file_read(file):
+def file_read(file, hash_map):
     while True:
         character = file.read(1)
         if not character:
@@ -104,12 +74,41 @@ def file_read(file):
     file.close()
 
 
+def second_file_read(file_path, bit_dictionary):
+    r = open(file_path, "r")
+    w = open("encode.txt", "w+")
+    while True:
+        character = r.read(1)
+        if not character:
+            break
+        else:
+            if bit_dictionary[character]:
+                w.write(str(bit_dictionary[character]))
+    r.close()
+
+
+def printTree(node, level=0):
+    if node:
+        printTree(node.left, level + 1)
+        print('')
+        print(' ' * 6 * level + '->', node.data)
+        print('')
+        printTree(node.right, level + 1)
+
+
 def main():
+    prio_queue = []
+    hash_map = {}
+    bit_mapping = []
+    bit_dictionary = {}
     tree = Tree()
+    file_path = ""
     try:
         file_path = input("Enter path:")
+        if file_path.find('""'):
+            file_path = file_path.strip('"')  # Safety measure in case user types path with quotes
         file = open(file_path, "r")
-        file_read(file)
+        file_read(file, hash_map)
     except FileNotFoundError:
         msg = "Sorry, cannot find file. Please check if correct path of file"
         print(msg)
@@ -119,29 +118,15 @@ def main():
     print(sorted_lst)
     for i in sorted_lst:
         prio_queue.append(Tree().Node(i))
-    huffman()
-    # print(len(prio_queue))
-    # for i in prio_queue:
-    #    print(i.data, i.left.data, i.right.data)
-    tree.root = prio_queue[0]
-    print(tree.root.data, 'root-data')
-    print(tree.root.left.data, 'left-data')
-    print(tree.root.right.data, 'right-data')
-
-    # if tree.root.left:
-    #    print(tree.root.left.data, 'left')
-    # if tree.root.right:
-    #    print(tree.root.right.data, 'right')
-    left_node = tree.root.left
-    print(left_node.right.bit, 'left bit')
-    right_node = tree.root.right
-    print(right_node.left.bit, 'right bit')
+    huffman(prio_queue)
+    tree.root = prio_queue[0]  # Set the root of the tree to be the only element left in the prio queue
     root_node = tree.root
-    # print(tree.root.bit, 'root bit')
-    my_array = []
     traverse_tree(root_node)
-    bit_traversal(root_node, bit_mapping, tree)
+    bit_traversal(root_node, bit_mapping, tree, bit_dictionary)
     print(bit_dictionary)
+    print(root_node.right.bit)
+    printTree(root_node)
+    second_file_read(file_path, bit_dictionary)
 
 
 if __name__ == "__main__":
