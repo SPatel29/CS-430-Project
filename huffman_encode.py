@@ -17,12 +17,13 @@ class Tree:
 
 
 def huffman(prio_queue):
-    while len(prio_queue) > 1:
+    if len(prio_queue) > 1:
         min_value = prio_queue[-1]
         del prio_queue[-1]
         max_value = prio_queue[-1]
         del prio_queue[-1]
         merge_nodes(min_value, max_value, prio_queue)
+        huffman(prio_queue)
 
 
 def merge_nodes(node1, node2, prio_queue):
@@ -30,7 +31,7 @@ def merge_nodes(node1, node2, prio_queue):
     node2.change_bit("1")
     value = (node1.data[0] + node2.data[0], node1.data[1] + node2.data[1])
     prio_queue.append(Tree.Node(data=value, left=node1, right=node2, bit=None))
-    prio_queue.sort(key=lambda x: x.data[1], reverse= True)  # Sort the node objects inside the prio queue
+    prio_queue.sort(key=lambda x: x.data[1], reverse= True)  # Sort the node objects inside the prio queue by frequency
 
 
 def traverse_tree(root):  # Post-Order Traversal.
