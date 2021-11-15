@@ -31,7 +31,7 @@ def merge_nodes(node1, node2, prio_queue):
     node2.change_bit("1")
     value = (node1.data[0] + node2.data[0], node1.data[1] + node2.data[1])
     prio_queue.append(Tree.Node(data=value, left=node1, right=node2, bit=None))
-    prio_queue.sort(key=lambda x: x.data[1], reverse= True)  # Sort the node objects inside the prio queue by frequency
+    prio_queue.sort(key=lambda x: x.data[1], reverse=True)  # Sort the node objects inside the prio queue by frequency
 
 
 def traverse_tree(root):  # Post-Order Traversal.
@@ -104,46 +104,104 @@ def printTree(node, level=0):
         printTree(node.right, level + 1)
 
 
+def menu_print():
+    print("Welcome to the Huffman Tree Encoder and Decoder!")
+    print("-------------------------------------------------")
+    print("The option menu is:")
+    print("1. Encode and Decode")
+    print("2. Help")
+    print("3. Quit")
+    option = input("What would you like to do?\n")
+    return option
+
+
+def help_menu():
+    choice = ""
+    print("\n")
+    print("                     HELP MENU:                          ")
+    print("---------------------------------------------------------")
+    print("This program takes a text file and encodes that file\n")
+    print("The program then immediately decodes that encoded file\n")
+    print("To input a file, a user can:")
+    print("-------> Enter an absolute location of the file")
+    print("-------> Enter the name of file, given it is in the same directory as this program file")
+    print("\n")
+    while True:
+        print("--Type 1 to start encoding and decoding\n")
+        print("--Type quit to exit out of the program\n")
+        choice = input("What would you like to do?\n")
+        choice = choice.strip("'")
+        choice = choice.lower()
+        if choice == "1" or choice == "start encoding and decoding":
+            choice = "1"
+            return choice
+        elif choice == "quit" or choice == "exit":
+            choice = "3"
+            return choice
+        else:
+            print("Please Type a valid option")
+
 def main():
-    prio_queue = []
-    hash_map = {}
-    bit_mapping = []
-    bit_dictionary = {}
-    tree = Tree()
-    file_path = ""
-    try:
-        file_path = input("Enter path:")
-        if file_path.find('""'):
-            file_path = file_path.strip('"')  # Safety measure in case user types path with quotes
-        file = open(file_path, "r")
-        file_read(file, hash_map)
-    except FileNotFoundError:
-        msg = "Sorry, cannot find file. Please check if correct path of file"
-        print(msg)
-    unsorted_lst = list(hash_map.items())
-    sorted_lst = sorted(unsorted_lst, key=lambda x: x[1],
-                        reverse=True)  # Sort by the second item (index 1) from the tuple
-    print(sorted_lst)
-    for i in sorted_lst:
-        prio_queue.append(Tree().Node(i))
-    huffman(prio_queue)
-    tree.root = prio_queue[0]  # Set the root of the tree to be the only element left in the prio queue
-    root_node = tree.root
-    traverse_tree(root_node)
-    bit_traversal(root_node, bit_mapping, tree, bit_dictionary)
-    print(bit_dictionary)
-    print(root_node.right.bit)
-    printTree(root_node)
-    r = open(file_path, "r")
-    w = open("encode.txt", "w+")
-    second_file_read(bit_dictionary, r, w)
-    r.close()
-    w.close()
-    r2 = open("encode.txt", "r")
-    w = open("a-out.txt", "w+")
-    decoder(root_node, r2, tree, w)
-    w.close()
-    r2.close()
+    choice = menu_print()
+    if choice == "2" or choice.lower() == "help":
+        choice = help_menu()
+    if choice == "3" or choice.lower() == "quit":
+        print("Goodbye!")
+    if choice == "1" or choice.lower() == "encode and decode":
+        print("Starting Encoding and Decoding Process\n")
+        prio_queue = []
+        hash_map = {}
+        bit_mapping = []
+        bit_dictionary = {}
+        tree = Tree()
+        file_path = ""
+        encode_output_file = ""
+        decode_output_file = ""
+        try:
+            file_path = input("Enter relative or absolute path of INPUT file for ENCODING:")
+            if file_path.find('""'):
+                file_path = file_path.strip('"')  # Safety measure in case user types path with quotes
+            file = open(file_path, "r")
+            file_read(file, hash_map)
+            print("\n")
+            print("Enter relative or absolute path to redirect OUTPUT from ENCODING")
+            encode_output_file = input("I would like to redirect output from ENCODING to: ")
+            encode_output_file = encode_output_file.strip('"')
+            print("\n")
+            print("Enter relative or absolute path file to redirect OUTPUT from DECODING")
+            decode_output_file = input("I would like to redirect output from DECODING to: ")
+            decode_output_file = decode_output_file.strip('"')
+
+            unsorted_lst = list(hash_map.items())
+            sorted_lst = sorted(unsorted_lst, key=lambda x: x[1],
+                                reverse=True)  # Sort by the second item (index 1) from the tuple
+            for i in sorted_lst:
+                prio_queue.append(Tree().Node(i))
+            huffman(prio_queue)
+            tree.root = prio_queue[0]  # Set the root of the tree to be the only element left in the prio queue
+            root_node = tree.root
+            # traverse_tree(root_node)
+            bit_traversal(root_node, bit_mapping, tree, bit_dictionary)
+            # print(bit_dictionary)
+            printTree(root_node)
+            r = open(file_path, "r")
+            w = open(encode_output_file, "w+")
+            second_file_read(bit_dictionary, r, w)
+            r.close()
+            w.close()
+            r2 = open(encode_output_file, "r")
+            w = open(decode_output_file, "w+")
+            decoder(root_node, r2, tree, w)
+            w.close()
+            r2.close()
+            print("")
+            print("Your dictionary of code words is: \n")
+            print(bit_dictionary)
+
+        except FileNotFoundError:
+            msg = "Sorry, cannot find file. Please check your path to file and try again!"
+            print(msg)
+
 
 
 if __name__ == "__main__":
