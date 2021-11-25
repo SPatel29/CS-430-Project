@@ -1,37 +1,81 @@
+class Heap:
+    def __init__(self):
+        self.heap = []
+        self.size = 0
+
+    def insert(self, value):
+        self.size += 1
+        self.heap.append(value)
+
+    def build_min_heap(self):
+        for i in range((self.size // 2) - 1, -1, -1):  # Start from parent of leaf and work way up to root
+            self.min_heapify(i)
+
+    def min_heapify(self, index):  # Go from parent to leaf, switching values when necessary
+        left = leftChild(index)
+        right = rightChild(index)
+
+        # If left is in heap and it is smaller than its parent
+        if left <= self.size - 1 and self.heap[left].data[1] < self.heap[index].data[1]:
+            smallest = left
+        else:
+            smallest = index
+        # If right is in heap and it is smaller than the current smallest node:
+        if right <= self.size - 1 and self.heap[right].data[1] < self.heap[smallest].data[1]:
+            smallest = right
+        if smallest != index:  # Swap if original element is not the smallest between its children
+            self.heap[index], self.heap[smallest] = self.heap[smallest], self.heap[index]
+            self.min_heapify(smallest)
+
+    def extract_min(self):
+        if self.size > 0:
+            min_value = self.heap[0]
+            self.heap[0] = self.heap[-1]
+            self.size -= 1
+            del self.heap[-1]
+            self.min_heapify(0)  # Start from root and work all the way down to leaf
+            return min_value
+
+
 class Tree:
     class Node:
-        def __init__(self, data=None, left=None, right=None, bit=None):
+        def __init__(self, data=None, left=None, right=None, bit=None, traverse=False):
             self.data = data
             self.left = left
             self.right = right
             self.bit = bit
-
-        def change_bit(self, bit):
-            self.bit = bit
+            self.traverse = traverse
 
     def __init__(self):
         self.root = None
 
-    def make_root(self, node):
-        self.root = node
+
+def parent(index):
+    return (index - 1) // 2
 
 
-def huffman(prio_queue):
-    if len(prio_queue) > 1:
-        min_value = prio_queue[-1]
-        del prio_queue[-1]
-        max_value = prio_queue[-1]
-        del prio_queue[-1]
-        merge_nodes(min_value, max_value, prio_queue)
-        huffman(prio_queue)
+def rightChild(index):
+    return (2 * index) + 2
 
 
-def merge_nodes(node1, node2, prio_queue):
-    node1.change_bit("0")
-    node2.change_bit("1")
+def leftChild(index):
+    return (2 * index) + 1
+
+
+def huffman(heap, tree):  # O(Nlog(N))
+    if heap.size > 1:  # (N)
+        first_min_value = heap.extract_min()
+        second_min_value = heap.extract_min()
+        merge_nodes(first_min_value, second_min_value, heap, tree)  # log(N). merge_nodes calls build_min_heap
+        huffman(heap, tree)
+
+
+def merge_nodes(node1, node2, heap, tree):
+    node1.bit = '0'
+    node2.bit = '1'
     value = (node1.data[0] + node2.data[0], node1.data[1] + node2.data[1])
-    prio_queue.append(Tree.Node(data=value, left=node1, right=node2, bit=None))
-    prio_queue.sort(key=lambda x: x.data[1], reverse=True)  # Sort the node objects inside the prio queue by frequency
+    heap.insert(tree.Node(data=value, left=node1, right=node2, bit=None, traverse=False))
+    heap.build_min_heap()  # log(N). build_min_heap takes log(N) time
 
 
 def traverse_tree(root):  # Post-Order Traversal.
@@ -41,23 +85,23 @@ def traverse_tree(root):  # Post-Order Traversal.
         print(root.data, 'data', root.bit, 'bit')
 
 
-def bit_traversal(node, array, tree, bit_dictionary):
+def bit_traversal(node, bits, tree, bit_dictionary):
     if node and node is tree.root:  # Since the root does not have a bit, we make a separate if clause
-        bit_traversal(node.left, array, tree, bit_dictionary)
-        bit_traversal(node.right, array, tree, bit_dictionary)
+        bit_traversal(node.left, bits, tree, bit_dictionary)
+        bit_traversal(node.right, bits, tree, bit_dictionary)
     if node and node.bit and node is not tree.root:  # Every node but the root
-        array.append(node.bit)
-        bit_traversal(node.left, array, tree, bit_dictionary)
-        bit_traversal(node.right, array, tree, bit_dictionary)
+        bits.append(node.bit)
+        bit_traversal(node.left, bits, tree, bit_dictionary)
+        bit_traversal(node.right, bits, tree, bit_dictionary)
         if not node.left and not node.right:  # If it's a leaf node
-            bit_dictionary[node.data[0]] = "".join(array)
-            del array[-1]
-            node.bit = "2"
+            bit_dictionary[node.data[0]] = "".join(bits)  # maps the letter to code. (letter: code)
+            del bits[-1]   # Delete most recent added bit, for when we recurse back to parent and go to next child
+            node.traverse = True
         if node.left and node.right:  # If it's a parent node
-            if node.left.bit == "2" and node.right.bit == "2":  # Means we have visited both subtrees of a node
-                node.bit = "2"  # Mark the parent of both subtrees as 2
-                if len(array) >= 1:
-                    del array[-1]
+            if node.left.traverse and node.right.traverse:  # Means we have visited both subtrees of a node
+                node.traverse = True  # Mark the parent of both subtrees as 2
+                if len(bits) >= 1:
+                    del bits[-1]
 
 
 def file_read(file, hash_map):
@@ -116,7 +160,6 @@ def menu_print():
 
 
 def help_menu():
-    choice = ""
     print("\n")
     print("                     HELP MENU:                          ")
     print("---------------------------------------------------------")
@@ -141,6 +184,7 @@ def help_menu():
         else:
             print("Please Type a valid option")
 
+
 def main():
     choice = menu_print()
     if choice == "2" or choice.lower() == "help":
@@ -149,14 +193,11 @@ def main():
         print("Goodbye!")
     if choice == "1" or choice.lower() == "encode and decode":
         print("Starting Encoding and Decoding Process\n")
-        prio_queue = []
         hash_map = {}
-        bit_mapping = []
-        bit_dictionary = {}
+        heap = Heap()
         tree = Tree()
-        file_path = ""
-        encode_output_file = ""
-        decode_output_file = ""
+        bits = []
+        bit_dictionary = {}
         try:
             file_path = input("Enter relative or absolute path of INPUT file for ENCODING:")
             if file_path.find('""'):
@@ -171,19 +212,13 @@ def main():
             print("Enter relative or absolute path file to redirect OUTPUT from DECODING")
             decode_output_file = input("I would like to redirect output from DECODING to: ")
             decode_output_file = decode_output_file.strip('"')
-
             unsorted_lst = list(hash_map.items())
-            sorted_lst = sorted(unsorted_lst, key=lambda x: x[1],
-                                reverse=True)  # Sort by the second item (index 1) from the tuple
-            for i in sorted_lst:
-                prio_queue.append(Tree().Node(i))
-            huffman(prio_queue)
-            tree.root = prio_queue[0]  # Set the root of the tree to be the only element left in the prio queue
-            root_node = tree.root
-            # traverse_tree(root_node)
-            bit_traversal(root_node, bit_mapping, tree, bit_dictionary)
-            # print(bit_dictionary)
-            printTree(root_node)
+            for i in unsorted_lst:
+                heap.insert(tree.Node(data=i, left=None, right=None, bit=None, traverse=False))
+            heap.build_min_heap()
+            huffman(heap, tree)
+            tree.root = heap.heap[0]  # Make the only item in heap the root node
+            bit_traversal(tree.root, bits, tree, bit_dictionary)
             r = open(file_path, "r")
             w = open(encode_output_file, "w+")
             second_file_read(bit_dictionary, r, w)
@@ -191,17 +226,16 @@ def main():
             w.close()
             r2 = open(encode_output_file, "r")
             w = open(decode_output_file, "w+")
-            decoder(root_node, r2, tree, w)
+            decoder(tree.root, r2, tree, w)
             w.close()
             r2.close()
             print("")
-            print("Your dictionary of code words is: \n")
+            print("Your dictionary of code words in no particular order, is: \n")
             print(bit_dictionary)
 
         except FileNotFoundError:
             msg = "Sorry, cannot find file. Please check your path to file and try again!"
             print(msg)
-
 
 
 if __name__ == "__main__":
