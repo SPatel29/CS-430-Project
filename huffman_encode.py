@@ -231,48 +231,51 @@ def main():
             decode_output_file = input("I would like to redirect output from DECODING to: ")
             decode_output_file = decode_output_file.strip('"')
             unsorted_lst = list(hash_map.items())
-            for i in unsorted_lst:
-                heap.insert(tree.Node(data=i, left=None, right=None, bit=None, traverse=False))
-            heap.build_min_heap()
-            huffman(heap, tree)
-            tree.root = heap.heap[0]  # Make the only item in heap the root node
-            bit_traversal(tree.root, bits, tree, bit_dictionary)
-            r = open(file_path, "r")
-            w = open(encode_output_file, "w+")
-            second_file_read(bit_dictionary, r, w)
-            r.close()
-            w.close()
-            r2 = open(encode_output_file, "r")
-            w = open(decode_output_file, "w+")
-            decoder(tree.root, r2, tree, w)
-            w.close()
-            r2.close()
-            print("")
-            print("")
-            print("TREE PRINT:")
-            print("---------------------------------------------------------------------------")
-            print("READ IN HORIZONTAL DIRECTION, LEFTMOST IS THE ROOT, RIGHTMOST IS LEAF\n"
-                  "EVERYTHING BELOW 'root:' IS THE LEFT-HAND SUBTREE OF ROOT\n"
-                  "EVERYTHING ABOVE 'root:' IS THE RIGHT-HAND SUBTREE OF ROOT"
-                  )
-            print("")
-            printTree(tree.root, tree)
-            print("")
-            print("SCROLL UP FOR TREE PRINT UNTIL YOU REACH 'root:' \n"
-                  "READ IN HORIZONTAL DIRECTION, LEFTMOST IS THE ROOT, RIGHTMOST IS LEAF\n"
-                  "EVERYTHING BELOW 'root:' IS THE LEFT-HAND SUBTREE OF ROOT\n"
-                  "EVERYTHING ABOVE 'root:' IS THE RIGHT-HAND SUBTREE OF ROOT")
-            print("")
-            print("")
-            print("PRINTED DICTIONARY OF CODE WORDS")
-            print("------------------------------------")
-            print("Your dictionary of codewords (letter to code) in NO PARTICULAR ORDER, is: \n")
-            print(bit_dictionary)
-            print("")
-            print("")
+            if len(unsorted_lst) > 1:   # Need our file to have at least 2 OR MORE unique characters
+                for i in unsorted_lst:
+                    heap.insert(tree.Node(data=i, left=None, right=None, bit=None, traverse=False))
+                heap.build_min_heap()
+                huffman(heap, tree)
+                tree.root = heap.heap[0]  # Make the only item in heap the root node
+                bit_traversal(tree.root, bits, tree, bit_dictionary)
+                r = open(file_path, "r")
+                w = open(encode_output_file, "w+")
+                second_file_read(bit_dictionary, r, w)
+                r.close()
+                w.close()
+                r2 = open(encode_output_file, "r")
+                w = open(decode_output_file, "w+")
+                decoder(tree.root, r2, tree, w)
+                w.close()
+                r2.close()
+                print("")
+                print("")
+                print("TREE PRINT:")
+                print("---------------------------------------------------------------------------")
+                print("READ IN HORIZONTAL DIRECTION, LEFTMOST IS THE ROOT, RIGHTMOST IS LEAF\n"
+                      "EVERYTHING BELOW 'root:' IS THE LEFT-HAND SUBTREE OF ROOT\n"
+                      "EVERYTHING ABOVE 'root:' IS THE RIGHT-HAND SUBTREE OF ROOT"
+                      )
+                print("")
+                printTree(tree.root, tree)
+                print("")
+                print("SCROLL UP FOR TREE PRINT UNTIL YOU REACH 'root:' \n"
+                      "READ IN HORIZONTAL DIRECTION, LEFTMOST IS THE ROOT, RIGHTMOST IS LEAF\n"
+                      "EVERYTHING BELOW 'root:' IS THE LEFT-HAND SUBTREE OF ROOT\n"
+                      "EVERYTHING ABOVE 'root:' IS THE RIGHT-HAND SUBTREE OF ROOT")
+                print("")
+                print("")
+                print("PRINTED DICTIONARY OF CODE WORDS")
+                print("------------------------------------")
+                print("Your dictionary of codewords (letter to code) in NO PARTICULAR ORDER, is: \n")
+                print(bit_dictionary)
+                print("")
+                print("")
 
-            print("SCROLL UP FOR TREE PRINT")
-
+                print("SCROLL UP FOR TREE PRINT")
+            else:
+                print("")
+                print("File needs to have 2 OR MORE unique characters for huffman coding to work")
         except FileNotFoundError:
             msg = "Sorry, cannot find file. Please check your path to file and try again!"
             print(msg)
