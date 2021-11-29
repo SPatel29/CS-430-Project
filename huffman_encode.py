@@ -209,6 +209,7 @@ def main():
         choice = help_menu()
     if choice == "3" or choice.lower() == "quit":
         print("Goodbye!")
+        return
     if choice == "1" or choice.lower() == "encode and decode":
         print("Starting Encoding and Decoding Process\n")
         hash_map = {}
@@ -231,7 +232,7 @@ def main():
             decode_output_file = input("I would like to redirect output from DECODING to: ")
             decode_output_file = decode_output_file.strip('"')
             unsorted_lst = list(hash_map.items())
-            if len(unsorted_lst) > 1:   # Need our file to have at least 2 OR MORE unique characters
+            if len(unsorted_lst) > 1:  # Need our file to have at least 2 OR MORE unique characters
                 for i in unsorted_lst:
                     heap.insert(tree.Node(data=i, left=None, right=None, bit=None, traverse=False))
                 heap.build_min_heap()
@@ -271,11 +272,12 @@ def main():
                 print(bit_dictionary)
                 print("")
                 print("")
-
-                print("SCROLL UP FOR TREE PRINT")
+                print("Files have been updated. Please go to your path and check output files")
+                print("")
+                print("Scroll up to see the tree as well")
             else:
                 print("")
-                print("File needs to have 2 OR MORE unique characters for huffman coding to work")
+                print("File needs to have 2 OR MORE unique characters for huffman coding to work\n")
         except FileNotFoundError:
             msg = "Sorry, cannot find file. Please check your path to file and try again!"
             print(msg)
