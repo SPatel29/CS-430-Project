@@ -67,7 +67,7 @@ def huffman(heap, tree):  # O(Nlog(N))
     if heap.size > 1:  # (N)
         first_min_value = heap.extract_min()
         second_min_value = heap.extract_min()
-        merge_nodes(first_min_value, second_min_value, heap, tree)  # log(N). merge_nodes calls build_min_heap
+        merge_nodes(first_min_value, second_min_value, heap, tree)  # log(N). merge_nodes calls min_heapify
         huffman(heap, tree)
 
 
@@ -76,7 +76,7 @@ def merge_nodes(node1, node2, heap, tree):  # Takes a heap, tree and 2 node obje
     node2.bit = '1'
     value = (node1.data[0] + node2.data[0], node1.data[1] + node2.data[1])
     heap.insert(tree.Node(data=value, left=node1, right=node2, bit=None, traverse=False))  # Insert new node to heap
-    heap.build_min_heap()  # log(N). build_min_heap takes log(N) time
+    heap.min_heapify(0)  # log(N). min_heapify takes log(n) time
 
 
 def traverse_tree(root):  # Post-Order Traversal. Takes in a node object as parameter
