@@ -141,7 +141,26 @@ def second_file_read(bit_dictionary, r, w):
 # then it recurses back to root when we hit a leaf and write character to output file,
 # since we don't know where the next character of the input file is located on the tree
 
-def decoder(node, input_file, tree, output_file):
+def decoder(input_file, tree, output_file):
+    node = tree.root
+    while True:
+        if node and not node.right and not node.left:
+            output_file.write(node.data[0])
+            node = tree.root
+        elif node:
+            character = input_file.read(1)
+            if character:
+                if character == "0":
+                    node = node.left
+                    #decoder(node.left, input_file, tree, output_file)  # recall nodes with bit 0 are placed on left side
+                elif character == "1":
+                    node = node.right
+                    #decoder(node.right, input_file, tree, output_file)
+            else:
+                break
+
+
+'''
     if node and not node.right and not node.left:
         output_file.write(node.data[0])  # write the character the user output file
         decoder(tree.root, input_file, tree, output_file)  # recurse back to root
@@ -152,7 +171,7 @@ def decoder(node, input_file, tree, output_file):
                 decoder(node.left, input_file, tree, output_file)  # recall nodes with bit 0 are placed on left side
             elif character == "1":
                 decoder(node.right, input_file, tree, output_file)  # recall nodes with bit 1 are placed on right side
-
+'''
 
 def printTree(node, tree, level=0):  # Uses the idea of inorder traversal to print out tree. Prints tree horizontally
     if node:
@@ -246,7 +265,7 @@ def main():
                 w.close()
                 r2 = open(encode_output_file, "r")
                 w = open(decode_output_file, "w+")
-                decoder(tree.root, r2, tree, w)
+                decoder(r2, tree, w)
                 w.close()
                 r2.close()
                 print("")
